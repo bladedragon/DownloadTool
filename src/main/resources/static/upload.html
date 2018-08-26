@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>上传</title>
+</head>
+<body>
+<!--<p>单文件上传</p>-->
+<!--<form method="POST" enctype="multipart/form-data"-->
+      <!--action="/user/upload">-->
+    <!--File to upload: <input type="file" name="file"/><br />-->
+    <!--Name: <input type="text" name="name"/>-->
+    <!--<input type="submit"  value="单文件上传"/>-->
+
+<!--</form>-->
+<!--<p>多文件上传</p>-->
+<!--<form method="POST" enctype="multipart/form-data"-->
+      <!--action="/upload">-->
+    <!--Name: <input type="text" name="name"/>-->
+    <!--<p>文件1：<input type="file" name="file" /></p>-->
+    <!--<p>文件2：<input type="file" name="file" /></p>-->
+    <!--<p><input type="submit" value="多文件上传" /></p>-->
+<!--</form>-->
+
+<div>---------------------------------------------------------------------------</div>
+<link href="css/style.css" rel="stylesheet">
+<button class="" onclick="toHome()">返回</button>
+<!--<form   enctype="multipart/form-data" id="uploadform">-->
+<form id="uploadform" enctype="multipart/form-data" method="POST" action="/user/upload">
+       文件：<input type="file" name="file" id="single_file"/>
+             <input typr="text" name="filename" id="filename"/>
+    <button id="submit"onclick="upload()" >提交</button>
+</form>
+
+
+<!--<p>多文件上传</p>-->
+<!--<form method="POST" enctype="multipart/form-data" action="/user/upload">-->
+    <!--<p>文件1：<input type="file" name="test" /></p>-->
+    <!--<p>文件2：<input type="file" name="test" /></p>-->
+    <!--<p><input class="" type="submit" value="上传" /></p>-->
+
+<!--</form>-->
+<script src="js/jquery.min.js"></script>
+<!--<script src="js/bootstrap.min.js"></script>-->
+<script src="js/util.js"></script>
+<script type="application/javascript">
+    function upload() {
+       // var file = document.getElementById("single_file").value;
+        // file.name = document.getElementById("inputPassword").value;
+        var formData = new FormData();
+        var  file =$( "#uploadForm" )[0];
+        var name = $("#filename").value;
+        formData.append("uploadform",file);
+        formData.append("filename",name);
+            console.log(formData);
+
+
+        var div = document.getElementById("but");
+        var button  = document.createElement("button");
+        div.appendChild(button);
+        button.id = "abort";
+        button.innerText ="取消上传";
+        button.onclick = function () {
+            var button = document.getElementById("abort");
+            window.location.href = address+"upload.html";
+            console.log(xhr);
+            // xhr.abort();
+            button.style.display = "none ";
+            alert("上传已终止");
+        }
+
+
+        var response;
+        var xhr =  $.ajax({
+            async : false,
+            type : 'POST',
+            url : address+"upload",
+            data : formData,
+            dataType : 'json',
+            success : function(result) {
+                response = result;
+            },
+            error : function(result) {
+                console.log(result);
+                alert('服务器异常');
+            }
+        });
+
+
+        if(response.status == "0"){
+            alert("上传成功！");
+            console.log(response);
+        }
+        else{
+            alert(response.content);
+        }
+
+
+    }
+    function toHome() {
+        window.location.href = address+"homepage.html";
+    }
+
+
+</script>
+<div id="but">
+    <button class="wp z " id="abort" style="display: none;" onclick="abortupload()">停止上传</button>
+</div>
+</body>
+</html>

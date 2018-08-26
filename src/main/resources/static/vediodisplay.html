@@ -1,0 +1,318 @@
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>视频</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body >
+<script src="//cdnjs.cloudflare.com/ajax/libs/json3/3.3.2/json3.min.js"></script>
+<script src="js/jquery.min.js"></script>
+<script src="js/util.js"></script>
+<div class="header">
+    <div class="top">
+        <div class="wp">
+            <div class="z">
+
+                <span style="color: #d7973e">
+               Zclould下载工具 &nbsp;
+            </span>
+
+                <span style="color:#4bcdd9" >
+                    咨询地址：team.redrock.web
+                </span>
+            </div>
+
+            <div class="y" id = "no">
+                <span>
+                    <a href="index.html" >登录</a>
+                </span>
+                <sapn style="color:#8c8d8d">|</sapn>
+                <span>
+                    <a href="register.html">注册</a>
+                </span>
+            </div>
+            <div class="y" id="ed">
+                <span >
+                    <a class="welcome" href="#" id="wel" >welcome!</a>
+                </span>
+                <sapn style="color:#8c8d8d">|</sapn>
+                <span>
+                    <a href="index.html" onclick="logoff()">退出</a>
+                </span>
+            </div>
+
+            <script th:inline="javascript">
+
+                /*<![CDATA[*/
+                // var usersession =[[${session.user}]];
+
+                var usersession = getCookie("user")
+                var cookie = JSON.parse(usersession);
+                console.log(cookie);
+                var btn1=document.getElementById('ed');
+                var box1=document.getElementById('no');
+                function btn(){
+                    if(cookie == undefined)
+                        btn1.style.display="none";
+                    else {
+                        box1.style.display = "none";
+                        var wel = document.getElementById("wel");
+                        wel.innerText = "welcome!  " + cookie.username;
+                    }
+                }
+                btn();
+
+
+                function clearAllCookie() {
+                    var keys = document.cookie.match(/[^ =;]+(?=\=)/g);
+                    if(keys) {
+                        for(var i = keys.length; i--;)
+                            document.cookie = keys[i] + '=0;expires=' + new Date(0).toUTCString()
+                    }
+                }
+                function setoffCookie(){
+                    setCookie("user",undefined,-1);
+                }
+
+
+                function logoff() {
+                    var file ;
+                    var files = new Array(file);
+                    var response;
+                    $.ajax({
+                        async: false,
+                        type: 'GET',
+                        url: address + "exit",
+                        data: String,
+                        dataType: 'json',
+                        success: function (result) {
+                            response = result;
+                            console.log("1111");
+
+                        },
+                        error: function (result) {
+                            alert('服务器异常');
+                        }
+                    });
+                    console.log("1111");
+                    console.log(response.content);
+                    if (response.status == "0") {
+                        alert(response.content);
+                    }
+                }
+            </script>
+            <script src="js/util.js"></script>
+
+        </div>
+    </div>
+    <div class="wp">
+        <div class="logos">
+            <div class="logo z">
+                <h1><a href="homepage.html"><img src="img/logo.png" alt="???"></a></h1>
+            </div>
+            <div class="nav z">
+                <div class="wp">
+                    <ul>
+                        <li>
+                            <a href="homepage.html">首页 <span></span></a>
+                        </li>
+                        <li>
+                            <a href="folderdisplay.html" id="wenjian">文件 <span></span></a>
+                        </li>
+                        <li>
+                            <a href="vediodisplay.html">视频 <span></span></a>
+                        </li>
+                        <li>
+                            <a href="audiodisplay.html">音乐 <span></span></a>
+                        </li>
+                        <li>
+                            <a href="textdisplay.html">文本 <span></span></a>
+                        </li>
+                        <li>
+                            <a href="torrentdisplay.html">种子 <span></span></a>
+                        </li>
+                        <li>
+                            <a href="homepage.html">其他 <span></span></a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="wp" style="background-color: #363259">
+    <a href="upload.html"  style="color: #e0e0e0;width: 960px"  >上传文件</a>
+<a  class="wp" style="color: #e0e0e0">  当前文件夹：</a>
+<a id="curr_dir" class="wp" style="color: #e0e0e0">  &nbsp;ROOT</a>
+</div>
+<script type="application/javascript">
+    window.onload = function (){
+        vediolist();
+
+
+    }
+
+    // function getJsonLength(jsonData){
+    //     var jsonLength = 0;
+    //     for(var item in jsonData){
+    //         jsonLength++;
+    //     }
+    //     return jsonLength;
+    // }
+    function vediolist(){
+
+        var file={};
+        var files = new Array(file);
+        var response;
+        $.ajax({
+            async : false,
+            type : 'GET',
+            url : address+"vedio",
+            data : files,
+            dataType : 'json',
+            success : function(result) {
+                response = result;
+                console.log("1111");
+
+            },
+            error : function(result) {
+                alert('服务器异常');
+            }
+        });
+        console.log("1111");
+        console.log(response.content);
+        if(response.status == "0"){
+            files = JSON.parse(response.content);
+            console.log(files);
+            console.log( Object.keys(files).length);
+            // setCookie("user",response.content,1);
+            for(var i=0; i<files.length;i++){
+                var f_name = files[i].filename;
+                var f_path = files[i].filepath;
+                var f_time = files[i].time;
+                var username = files[i].username;
+
+                console.log(files[i].f_name);
+                console.log(files[0]);
+
+                var divlist = document.getElementById("list");
+
+                var li = document.createElement("li");
+                li.className="wp";
+                // var br = document.createElement("br");
+                // li.appendChild(br);
+
+                var div1 = document.createElement("div");
+
+                div1.className = "wp";
+                div1.style.backgroundColor = "#e0e0e0";
+                div1.style.width = 960+"px";
+                div1.style.height = 40+"px"
+                // div1.appendChild(br);
+
+                // var h3 = document.createElement("h3");
+                var a = document.createElement("a");
+
+                a.style.fontSize = 20+"px";
+                a.style.fontFamily = "方正大标宋简体";
+                a.href = address+"download/"+GetUrlPath(f_path);
+                a.innerText = f_name;
+                div1.appendChild(a);
+                // h3.appendChild(a);
+                // div1.appendChild(h3);
+                li.appendChild(div1);
+
+
+                var div2 = document.createElement("div");
+                div2.className = "wp";
+                div2.style.backgroundColor = "#f0f5e7";
+
+
+                var p = document.createElement("a");
+                p.innerText = "删除-->"+f_name;
+                p.style.width = 960+"px";
+                p.style.backgroundColor ="#fafff0";
+                p.onclick=function(){
+                    var filename =this.innerText;
+
+                    var response;
+                    $.ajax({
+                        async : false,
+                        type : 'POST',
+                        url : address+"delete",
+                        data : {deletename:filename},
+                        dataType : 'json',
+                        success : function(result) {
+                            response = result;
+                        },
+                        error : function(result) {
+                            alert("你尚未登录");
+                            // alert('服务器异常');
+                        }
+                    });
+
+
+                    console.log(response);
+                    if(response.status == "0"){
+                        alert(response.content);
+                        window.location.href=address+"homepage.html";
+                    }
+                    else{
+                        alert(response.content);
+                    }
+                };
+
+                div2.appendChild(p);
+                li.appendChild(div2);
+
+                var div3 = document.createElement("div");
+                div3.className = "wp";
+                div3.style.backgroundColor = "#f0f5e7";
+
+                var span1 = document.createElement("span");
+                span1.innerText = "上传时间："+f_time;
+                var span2 = document.createElement("span");
+                span2.innerText = " | 上传者："+username;
+                div3.appendChild(span1);
+                div3.appendChild(span2);
+                li.appendChild(div3);
+
+                var br = document.createElement("br");
+                li.appendChild(br);
+
+                divlist.appendChild(li);
+            }
+        }
+        else{
+            alert(response.content);
+        }
+
+    }
+
+
+    function GetUrlPath(path){
+        var url = path;
+
+        if(url.indexOf("/") != -1){
+            var  relUrl = url.substring(url.lastIndexOf("/")+1) ;
+        }
+        return relUrl;
+    }
+    console.log(GetUrlPath());
+
+</script>
+<div class="  "  id="list"></div>
+
+
+
+
+
+
+</body>
+</html>

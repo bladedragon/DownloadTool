@@ -1,0 +1,569 @@
+
+<!DOCTYPE html>
+
+<html  xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>文件</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body >
+<script src="//cdnjs.cloudflare.com/ajax/libs/json3/3.3.2/json3.min.js"></script>
+<script src="js/jquery.min.js"></script>
+<script src="js/util.js"></script>
+<div class="header">
+    <div class="top">
+        <div class="wp">
+            <div class="z">
+
+                <span style="color: #d7973e">
+               Zclould下载工具 &nbsp;
+            </span>
+
+                <span style="color:#4bcdd9" >
+                    咨询地址：team.redrock.web
+                </span>
+            </div>
+
+            <div class="y" id = "no">
+                <span>
+                    <a href="index.html" >登录</a>
+                </span>
+                <sapn style="color:#8c8d8d">|</sapn>
+                <span>
+                    <a href="register.html">注册</a>
+                </span>
+            </div>
+            <div class="y" id="ed">
+                <span >
+                    <a class="welcome" href="#" id="wel" >welcome!</a>
+                </span>
+                <sapn style="color:#8c8d8d">|</sapn>
+                <span>
+                    <a href="index.html" onclick="logoff()">退出</a>
+                </span>
+            </div>
+
+            <script th:inline="javascript">
+
+                /*<![CDATA[*/
+                // var usersession =[[${session.user}]];
+
+                var usersession = getCookie("user")
+                var cookie = JSON.parse(usersession);
+                console.log(cookie);
+                var btn1=document.getElementById('ed');
+                var box1=document.getElementById('no');
+                function btn(){
+                    if(cookie == undefined)
+                        btn1.style.display="none";
+                    else {
+                        box1.style.display = "none";
+                        var wel = document.getElementById("wel");
+                        wel.innerText = "welcome!  " + cookie.username;
+                    }
+                }
+                btn();
+
+
+                function clearAllCookie() {
+                    var keys = document.cookie.match(/[^ =;]+(?=\=)/g);
+                    if(keys) {
+                        for(var i = keys.length; i--;)
+                            document.cookie = keys[i] + '=0;expires=' + new Date(0).toUTCString()
+                    }
+                }
+                        function getUrlPath(){
+                            var url = document.location.toString();
+                            if(url.indexOf("/") != -1){
+                                url = url.substring(0,  url.lastIndexOf("/")) ;
+                            }
+                            var url2 = url;
+                            var arrUrl = url2.split("//");
+
+                            var start = arrUrl[1].indexOf("/");
+                            var relUrl = arrUrl[1].substring(start);
+
+                            if(relUrl.indexOf("?") != -1){
+                                relUrl = relUrl.split("?")[0];
+                            }
+
+                            var temp = relUrl.substring(6);
+                            return temp;
+                        }
+                        console.log(getUrlPath());
+
+
+                function logoff() {
+                    var file ;
+                    var files = new Array(file);
+                    var response;
+                    $.ajax({
+                        async: false,
+                        type: 'GET',
+                        url: address + "exit",
+                        data: String,
+                        dataType: 'json',
+                        success: function (result) {
+                            response = result;
+                            console.log("1111");
+
+                        },
+                        error: function (result) {
+                            alert('服务器异常');
+                        }
+                    });
+                    console.log("1111");
+                    console.log(response.content);
+                    if (response.status == "0") {
+                        alert(response.content);
+                    }
+                }
+            </script>
+            <script src="js/util.js"></script>
+
+        </div>
+    </div>
+    <div class="wp">
+        <div class="logos">
+            <div class="logo z">
+                <h1><a href="homepage.html"><img src="img/logo.png" alt="???"></a></h1>
+            </div>
+            <div class="nav z">
+                <div class="wp">
+                    <ul>
+                        <li>
+                            <a href="homepage.html">首页 <span></span></a>
+                        </li>
+                        <li>
+                            <a href="folderdisplay.html"  id="wenjian">文件 <span></span></a>
+                        </li>
+                        <li>
+                            <a href="vediodisplay.html">视频 <span></span></a>
+                        </li>
+                        <li>
+                            <a href="audiodisplay.html">音乐 <span></span></a>
+                        </li>
+                        <li>
+                            <a href="textdisplay.html">文本 <span></span></a>
+                        </li>
+                        <li>
+                            <a href="torrentdisplay.html">种子 <span></span></a>
+                        </li>
+                        <li>
+                            <a href="homepage.html">其他 <span></span></a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+<div class="wp" style="background-color: #363259">
+    <a href="upload.html"  style="color: #e0e0e0;width: 960px"  >上传文件</a>
+    <a  class="wp" style="color: #e0e0e0">  当前文件夹：</a>
+    <a id="curr_dir" class="wp" style="color: #e0e0e0">  &nbsp;ROOT</a>
+    <button onclick="addDir()" class="y" style="background-color: #e0e0e0;color: #363259"> 创建文件夹</button>
+</div>
+<script type="application/javascript">
+    function addDir(){
+            var name=prompt("请输入文件夹名字");
+            if (name!=null && name!=""){
+
+                var curr_dir = document.getElementById("curr_dir");
+                var info={};
+                info.name = name;
+                info.currname = curr_dir.innerText;
+                var response;
+                $.ajax({
+                    async: false,
+                    type: 'POST',
+                    url: address + "createdir",
+                    data: info,
+                    dataType: 'json',
+                    success: function (result) {
+                        response = result;
+                    },
+                    error: function (result) {
+                        alert('服务器异常');
+                    }
+                });
+                if (response.status == "0") {
+                    alert(response.content);
+                    window.location.href = address + "folderdisplay.html";
+                }
+                else {
+                    // alert(response.content);
+                    alert("你尚未登录");
+                }
+
+            }else{
+                alert("创建失败");
+            }
+    }
+
+
+
+    window.onload = function (){
+        // filelist();
+        rootlist();
+
+    }
+
+
+    function rootlist(){
+        var file={};
+        var files = new Array(file);
+        var response;
+        $.ajax({
+            async : false,
+            type : 'GET',
+            url : address+"rootlist",
+            data : files,
+            dataType : 'json',
+            success : function(result) {
+                response = result;
+
+
+            },
+            error : function(result) {
+                alert('服务器异常');
+            }
+        });
+        if(response.status == "0"){
+            files = JSON.parse(response.content);
+            console.log(files);
+            console.log( Object.keys(files).length);
+            // setCookie("user",response.content,1);
+
+            for(var i=0; i<files.length;i++){
+                var f_name = files[i].foldername;
+                var f_time = files[i].foldertime;
+
+                console.log("遍历根目录的名字"+f_name);
+
+                var divlist = document.getElementById("listroot");
+
+                var li = document.createElement("li");
+                // var br = document.createElement("br");
+                // li.appendChild(br);
+
+                var div1 = document.createElement("div");
+                div1.className = "wp";
+                div1.style.backgroundColor = "#e0e0e0";
+                div1.style.width = 960+"px";
+                // div1.appendChild(br);
+
+                var h3 = document.createElement("h3");
+                var a = document.createElement("a");
+                a.href = "#"
+                a.onmousedown = function () {
+                    // console.log("root根目录下的文件名"+f_name);
+                    listfolder(f_name);
+                    listfile(f_name);
+                    var root = document.getElementById("listroot");
+                    root.style.display = 'none';
+
+                };
+                a.innerText = f_name;
+                h3.appendChild(a);
+                div1.appendChild(h3);
+                li.appendChild(div1);
+
+                console.log("lujing"+a.href);
+
+                var div2 = document.createElement("div");
+                div2.className = "wp";
+                div2.style.backgroundColor = "#f0f5e7";
+                var p = document.createElement("p");
+                p.innerText = "打开查看子目录";
+                div2.appendChild(p);
+                li.appendChild(div2);
+
+                var div3 = document.createElement("div");
+                div3.className = "wp";
+                div3.style.backgroundColor = "#f0f5e7";
+
+                var span1 = document.createElement("span");
+                span1.innerText = "创建时间："+f_time;
+                var span2 = document.createElement("span");
+                span2.innerText = " ";
+                div3.appendChild(span1);
+                div3.appendChild(span2);
+                li.appendChild(div3);
+
+                var br = document.createElement("br");
+                li.appendChild(br);
+
+                divlist.appendChild(li);
+            }
+        }
+        else{
+            alert(response.content);
+        }
+    }
+
+
+   var listfolder =  function (filename) {
+        var folder={};
+        var folders = new Array(folder);
+        var response;
+        $.ajax({
+            async : false,
+            type : 'GET',
+            // url : address+GetUrlPath()+filename,
+            url : address+"ROOT/"+filename,
+            data : folders,
+            dataType : 'json',
+            success : function(result) {
+                response = result;
+
+            },
+            error : function(result) {
+                alert('服务器异常');
+            }
+        });
+        if(response.status == "0") {
+            folders = JSON.parse(response.content);
+            console.log(folders);
+            console.log(Object.keys(folders).length);
+            // setCookie("user",response.content,1);
+
+            var currentDir = document.getElementById("curr_dir");
+            currentDir.innerText = filename;
+
+            var folderlist = document.getElementById("folderlist");
+            var childdiv = document.createElement("div");
+            childdiv.id = filename;
+            folderlist.appendChild(childdiv);
+            for (var i = 0; i < folders.length; i++) {
+                var f_name = folders[i].foldername;
+                var f_time = folders[i].foldertime;
+                var f_parent = folders[i].parent;
+
+                console.log("子目录的文件名"+f_name);
+                var divlist = document.getElementById(filename);
+
+                var li = document.createElement("li");
+                // var br = document.createElement("br");
+                // li.appendChild(br);
+
+                var div1 = document.createElement("div");
+                div1.className = "wp";
+                div1.style.backgroundColor = "#e0e0e0";
+                div1.style.width = 960 + "px";
+                // div1.appendChild(br);
+
+                var h3 = document.createElement("h3");
+                var a = document.createElement("a");
+                a.href = "#";
+                a.innerText = f_name;
+                a.onmousedown =function () {
+                    var fname = this.innerText;
+                    listfolder(fname);
+                    listfile(fname);
+                    exchangeFolder(f_parent);
+                    exchangeFile(f_parent);
+
+                }
+                h3.appendChild(a);
+                div1.appendChild(h3);
+                li.appendChild(div1);
+
+                console.log("lujing" + a.href);
+
+                var div2 = document.createElement("div");
+                div2.className = "wp";
+                div2.style.backgroundColor = "#f0f5e7";
+                var p = document.createElement("p");
+                p.innerText = "打开查看子目录";
+                div2.appendChild(p);
+                li.appendChild(div2);
+
+                    var div3 = document.createElement("div");
+                div3.className = "wp";
+                div3.style.backgroundColor = "#f0f5e7";
+
+                var span1 = document.createElement("span");
+                span1.innerText = "创建时间：" + f_time;
+                var span2 = document.createElement("span");
+                span2.innerText = " ";
+                div3.appendChild(span1);
+                div3.appendChild(span2);
+                li.appendChild(div3);
+
+                var br = document.createElement("br");
+                li.appendChild(br);
+
+                divlist.appendChild(li);
+            }
+
+        }else{
+            alert(response.content);
+        }
+
+    }
+    var listfile =  function (filename) {
+        var file = {};
+        var files = new Array(file);
+        var response;
+        $.ajax({
+            async: false,
+            type: 'GET',
+            // url : address+GetUrlPath()+filename,
+            url: address + "root/" + filename,
+            data: files,
+            dataType: 'json',
+            success: function (result) {
+                response = result;
+
+            },
+            error: function (result) {
+                alert('服务器异常');
+            }
+        });
+        if (response.status == "0") {
+            files = JSON.parse(response.content);
+            console.log(files);
+            console.log(Object.keys(files).length);
+            // setCookie("user",response.content,1);
+
+            var filelist_div = document.getElementById("filelist_div");
+            var childdiv = document.createElement("div");
+            childdiv.id = filename+"f";
+            filelist_div.appendChild(childdiv);
+
+            for (var i = 0; i < files.length; i++) {
+                var f_name = files[i].filename;
+                var f_path = files[i].filepath;
+                var f_time = files[i].time;
+                var username = files[i].username;
+
+
+                var divlist = document.getElementById(filename+"f");
+
+                var li = document.createElement("li");
+                li.className = "wp";
+                // var br = document.createElement("br");
+                // li.appendChild(br);
+
+                var div1 = document.createElement("div");
+
+                div1.className = "wp";
+                div1.style.backgroundColor = "#e0e0e0";
+                div1.style.width = 960 + "px";
+                div1.style.height = 40 + "px"
+                // div1.appendChild(br);
+
+                // var h3 = document.createElement("h3");
+                var a = document.createElement("a");
+
+                a.style.fontSize = 20 + "px";
+                a.style.fontFamily = "方正大标宋简体";
+                a.href = address + "download/" + GetUrlPath(f_path);
+                a.innerText = f_name;
+                div1.appendChild(a);
+                // h3.appendChild(a);
+                // div1.appendChild(h3);
+                li.appendChild(div1);
+
+
+                var div2 = document.createElement("div");
+                div2.className = "wp";
+                div2.style.backgroundColor = "#f0f5e7";
+
+
+                var p = document.createElement("a");
+                p.innerText = "删除-->" + f_name;
+                p.style.width = 960 + "px";
+                p.style.backgroundColor = "#fafff0";
+                p.onclick = function () {
+                    var filename = this.innerText;
+
+                    var response;
+                    $.ajax({
+                        async: false,
+                        type: 'POST',
+                        url: address + "delete",
+                        data: {deletename: filename},
+                        dataType: 'json',
+                        success: function (result) {
+                            response = result;
+                        },
+                        error: function (result) {
+                            // alert('服务器异常');
+                            alert("你尚未登录");
+                        }
+                    });
+
+
+                    console.log(response);
+                    if (response.status == "0") {
+                        alert(response.content);
+                        window.location.href = address + "homepage.html";
+                    }
+                    else {
+                        alert(response.content);
+                    }
+                };
+
+                div2.appendChild(p);
+                li.appendChild(div2);
+
+                var div3 = document.createElement("div");
+                div3.className = "wp";
+                div3.style.backgroundColor = "#f0f5e7";
+
+                var span1 = document.createElement("span");
+                span1.innerText = "上传时间：" + f_time;
+                var span2 = document.createElement("span");
+                span2.innerText = " | 上传者：" + username;
+                div3.appendChild(span1);
+                div3.appendChild(span2);
+                li.appendChild(div3);
+
+                var br = document.createElement("br");
+                li.appendChild(br);
+
+                divlist.appendChild(li);
+            }
+        }
+        else {
+            alert(response.content);
+        }
+    }
+    function GetUrlPath(path){
+        var url = path;
+
+        if(url.indexOf("/") != -1){
+            var  relUrl = url.substring(url.lastIndexOf("/")+1) ;
+        }
+        return relUrl;
+    }
+    console.log(GetUrlPath());
+
+    function exchangeFolder(filename){
+        var folder = document.getElementById(filename);
+        folder.style.display="none";
+        console.log(filename+"目录已隐藏");
+
+    }
+
+    function exchangeFile(filename){
+        var file = document.getElementById(filename+"f");
+        file.style.display ="none";
+        console.log(filename+"f"+"目录已隐藏");
+    }
+
+</script>
+
+<div class=""  id="listroot"></div>
+<div class=""  id="folderlist"></div>
+<div class=""  id="filelist_div"></div>
+
+
+
+</body>
+</html>
